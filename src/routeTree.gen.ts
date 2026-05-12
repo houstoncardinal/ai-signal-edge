@@ -9,38 +9,168 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppWatchlistsRouteImport } from './routes/app.watchlists'
+import { Route as AppSignalsRouteImport } from './routes/app.signals'
+import { Route as AppSettingsRouteImport } from './routes/app.settings'
+import { Route as AppScannerRouteImport } from './routes/app.scanner'
+import { Route as AppPaperRouteImport } from './routes/app.paper'
+import { Route as AppNewsRouteImport } from './routes/app.news'
+import { Route as AppJournalRouteImport } from './routes/app.journal'
+import { Route as AppChartsRouteImport } from './routes/app.charts'
 
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppWatchlistsRoute = AppWatchlistsRouteImport.update({
+  id: '/watchlists',
+  path: '/watchlists',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSignalsRoute = AppSignalsRouteImport.update({
+  id: '/signals',
+  path: '/signals',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppScannerRoute = AppScannerRouteImport.update({
+  id: '/scanner',
+  path: '/scanner',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPaperRoute = AppPaperRouteImport.update({
+  id: '/paper',
+  path: '/paper',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppNewsRoute = AppNewsRouteImport.update({
+  id: '/news',
+  path: '/news',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppJournalRoute = AppJournalRouteImport.update({
+  id: '/journal',
+  path: '/journal',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppChartsRoute = AppChartsRouteImport.update({
+  id: '/charts',
+  path: '/charts',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
+  '/app/charts': typeof AppChartsRoute
+  '/app/journal': typeof AppJournalRoute
+  '/app/news': typeof AppNewsRoute
+  '/app/paper': typeof AppPaperRoute
+  '/app/scanner': typeof AppScannerRoute
+  '/app/settings': typeof AppSettingsRoute
+  '/app/signals': typeof AppSignalsRoute
+  '/app/watchlists': typeof AppWatchlistsRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/app/charts': typeof AppChartsRoute
+  '/app/journal': typeof AppJournalRoute
+  '/app/news': typeof AppNewsRoute
+  '/app/paper': typeof AppPaperRoute
+  '/app/scanner': typeof AppScannerRoute
+  '/app/settings': typeof AppSettingsRoute
+  '/app/signals': typeof AppSignalsRoute
+  '/app/watchlists': typeof AppWatchlistsRoute
+  '/app': typeof AppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
+  '/app/charts': typeof AppChartsRoute
+  '/app/journal': typeof AppJournalRoute
+  '/app/news': typeof AppNewsRoute
+  '/app/paper': typeof AppPaperRoute
+  '/app/scanner': typeof AppScannerRoute
+  '/app/settings': typeof AppSettingsRoute
+  '/app/signals': typeof AppSignalsRoute
+  '/app/watchlists': typeof AppWatchlistsRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/app/charts'
+    | '/app/journal'
+    | '/app/news'
+    | '/app/paper'
+    | '/app/scanner'
+    | '/app/settings'
+    | '/app/signals'
+    | '/app/watchlists'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/app/charts'
+    | '/app/journal'
+    | '/app/news'
+    | '/app/paper'
+    | '/app/scanner'
+    | '/app/settings'
+    | '/app/signals'
+    | '/app/watchlists'
+    | '/app'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/app/charts'
+    | '/app/journal'
+    | '/app/news'
+    | '/app/paper'
+    | '/app/scanner'
+    | '/app/settings'
+    | '/app/signals'
+    | '/app/watchlists'
+    | '/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +178,101 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/watchlists': {
+      id: '/app/watchlists'
+      path: '/watchlists'
+      fullPath: '/app/watchlists'
+      preLoaderRoute: typeof AppWatchlistsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/signals': {
+      id: '/app/signals'
+      path: '/signals'
+      fullPath: '/app/signals'
+      preLoaderRoute: typeof AppSignalsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/settings': {
+      id: '/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/scanner': {
+      id: '/app/scanner'
+      path: '/scanner'
+      fullPath: '/app/scanner'
+      preLoaderRoute: typeof AppScannerRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/paper': {
+      id: '/app/paper'
+      path: '/paper'
+      fullPath: '/app/paper'
+      preLoaderRoute: typeof AppPaperRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/news': {
+      id: '/app/news'
+      path: '/news'
+      fullPath: '/app/news'
+      preLoaderRoute: typeof AppNewsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/journal': {
+      id: '/app/journal'
+      path: '/journal'
+      fullPath: '/app/journal'
+      preLoaderRoute: typeof AppJournalRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/charts': {
+      id: '/app/charts'
+      path: '/charts'
+      fullPath: '/app/charts'
+      preLoaderRoute: typeof AppChartsRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
+interface AppRouteChildren {
+  AppChartsRoute: typeof AppChartsRoute
+  AppJournalRoute: typeof AppJournalRoute
+  AppNewsRoute: typeof AppNewsRoute
+  AppPaperRoute: typeof AppPaperRoute
+  AppScannerRoute: typeof AppScannerRoute
+  AppSettingsRoute: typeof AppSettingsRoute
+  AppSignalsRoute: typeof AppSignalsRoute
+  AppWatchlistsRoute: typeof AppWatchlistsRoute
+  AppIndexRoute: typeof AppIndexRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppChartsRoute: AppChartsRoute,
+  AppJournalRoute: AppJournalRoute,
+  AppNewsRoute: AppNewsRoute,
+  AppPaperRoute: AppPaperRoute,
+  AppScannerRoute: AppScannerRoute,
+  AppSettingsRoute: AppSettingsRoute,
+  AppSignalsRoute: AppSignalsRoute,
+  AppWatchlistsRoute: AppWatchlistsRoute,
+  AppIndexRoute: AppIndexRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
