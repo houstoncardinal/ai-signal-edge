@@ -14,6 +14,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppSignalsRouteImport } from './routes/app.signals'
 import { Route as AppScannerRouteImport } from './routes/app.scanner'
+import { Route as AppChartsRouteImport } from './routes/app.charts'
 
 const AppRoute = AppRouteImport.update({
   id: '/app',
@@ -40,16 +41,23 @@ const AppScannerRoute = AppScannerRouteImport.update({
   path: '/scanner',
   getParentRoute: () => AppRoute,
 } as any)
+const AppChartsRoute = AppChartsRouteImport.update({
+  id: '/charts',
+  path: '/charts',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
+  '/app/charts': typeof AppChartsRoute
   '/app/scanner': typeof AppScannerRoute
   '/app/signals': typeof AppSignalsRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/app/charts': typeof AppChartsRoute
   '/app/scanner': typeof AppScannerRoute
   '/app/signals': typeof AppSignalsRoute
   '/app': typeof AppIndexRoute
@@ -58,16 +66,30 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
+  '/app/charts': typeof AppChartsRoute
   '/app/scanner': typeof AppScannerRoute
   '/app/signals': typeof AppSignalsRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app' | '/app/scanner' | '/app/signals' | '/app/'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/app/charts'
+    | '/app/scanner'
+    | '/app/signals'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app/scanner' | '/app/signals' | '/app'
-  id: '__root__' | '/' | '/app' | '/app/scanner' | '/app/signals' | '/app/'
+  to: '/' | '/app/charts' | '/app/scanner' | '/app/signals' | '/app'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/app/charts'
+    | '/app/scanner'
+    | '/app/signals'
+    | '/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -112,16 +134,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppScannerRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/charts': {
+      id: '/app/charts'
+      path: '/charts'
+      fullPath: '/app/charts'
+      preLoaderRoute: typeof AppChartsRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppChartsRoute: typeof AppChartsRoute
   AppScannerRoute: typeof AppScannerRoute
   AppSignalsRoute: typeof AppSignalsRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppChartsRoute: AppChartsRoute,
   AppScannerRoute: AppScannerRoute,
   AppSignalsRoute: AppSignalsRoute,
   AppIndexRoute: AppIndexRoute,
