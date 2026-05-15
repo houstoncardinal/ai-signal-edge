@@ -16,6 +16,7 @@ import { Route as AppWatchlistsRouteImport } from './routes/app.watchlists'
 import { Route as AppSignalsRouteImport } from './routes/app.signals'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppScannerRouteImport } from './routes/app.scanner'
+import { Route as AppRobotRouteImport } from './routes/app.robot'
 import { Route as AppPaperRouteImport } from './routes/app.paper'
 import { Route as AppNewsRouteImport } from './routes/app.news'
 import { Route as AppJournalRouteImport } from './routes/app.journal'
@@ -56,6 +57,11 @@ const AppScannerRoute = AppScannerRouteImport.update({
   path: '/scanner',
   getParentRoute: () => AppRoute,
 } as any)
+const AppRobotRoute = AppRobotRouteImport.update({
+  id: '/robot',
+  path: '/robot',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPaperRoute = AppPaperRouteImport.update({
   id: '/paper',
   path: '/paper',
@@ -84,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/app/journal': typeof AppJournalRoute
   '/app/news': typeof AppNewsRoute
   '/app/paper': typeof AppPaperRoute
+  '/app/robot': typeof AppRobotRoute
   '/app/scanner': typeof AppScannerRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/signals': typeof AppSignalsRoute
@@ -96,6 +103,7 @@ export interface FileRoutesByTo {
   '/app/journal': typeof AppJournalRoute
   '/app/news': typeof AppNewsRoute
   '/app/paper': typeof AppPaperRoute
+  '/app/robot': typeof AppRobotRoute
   '/app/scanner': typeof AppScannerRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/signals': typeof AppSignalsRoute
@@ -110,6 +118,7 @@ export interface FileRoutesById {
   '/app/journal': typeof AppJournalRoute
   '/app/news': typeof AppNewsRoute
   '/app/paper': typeof AppPaperRoute
+  '/app/robot': typeof AppRobotRoute
   '/app/scanner': typeof AppScannerRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/signals': typeof AppSignalsRoute
@@ -125,6 +134,7 @@ export interface FileRouteTypes {
     | '/app/journal'
     | '/app/news'
     | '/app/paper'
+    | '/app/robot'
     | '/app/scanner'
     | '/app/settings'
     | '/app/signals'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/app/journal'
     | '/app/news'
     | '/app/paper'
+    | '/app/robot'
     | '/app/scanner'
     | '/app/settings'
     | '/app/signals'
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/app/journal'
     | '/app/news'
     | '/app/paper'
+    | '/app/robot'
     | '/app/scanner'
     | '/app/settings'
     | '/app/signals'
@@ -213,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppScannerRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/robot': {
+      id: '/app/robot'
+      path: '/robot'
+      fullPath: '/app/robot'
+      preLoaderRoute: typeof AppRobotRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/paper': {
       id: '/app/paper'
       path: '/paper'
@@ -249,6 +268,7 @@ interface AppRouteChildren {
   AppJournalRoute: typeof AppJournalRoute
   AppNewsRoute: typeof AppNewsRoute
   AppPaperRoute: typeof AppPaperRoute
+  AppRobotRoute: typeof AppRobotRoute
   AppScannerRoute: typeof AppScannerRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppSignalsRoute: typeof AppSignalsRoute
@@ -261,6 +281,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppJournalRoute: AppJournalRoute,
   AppNewsRoute: AppNewsRoute,
   AppPaperRoute: AppPaperRoute,
+  AppRobotRoute: AppRobotRoute,
   AppScannerRoute: AppScannerRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppSignalsRoute: AppSignalsRoute,

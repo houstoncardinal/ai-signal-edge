@@ -116,6 +116,56 @@ export const SIGNALS: Signal[] = [
   { id: "s8", ticker: "IONQ", setup: "Breakout Pullback", timeframe: "Swing", aiScore: 71, entry: [31.80, 32.40], stop: 30.50, target: 36.80, catalyst: "Tempo system reveal + pullback to 21-EMA support. Quantum sector rotation accelerating into year-end.", sentiment: 71, confidence: "Medium" },
 ];
 
+export const FILINGS: { id: string; ticker: string; company: string; type: "8-K" | "10-Q" | "S-1" | "13F" | "DEF 14A"; title: string; date: string; impact: "High" | "Medium" | "Low" }[] = [
+  { id: "fi1", ticker: "AMC", company: "AMC Entertainment Holdings", type: "8-K", title: "Unregistered Sales of Equity Securities and ATM Offering", date: "2026-05-11", impact: "High" },
+  { id: "fi2", ticker: "SMCI", company: "Super Micro Computer Inc.", type: "10-Q", title: "Quarterly Report — Period Ending March 31 2026", date: "2026-05-10", impact: "High" },
+  { id: "fi3", ticker: "HIMS", company: "Hims & Hers Health Inc.", type: "8-K", title: "Entry into a Material Definitive Agreement — GLP-1 Manufacturing JV", date: "2026-05-09", impact: "High" },
+  { id: "fi4", ticker: "PLTR", company: "Palantir Technologies Inc.", type: "8-K", title: "Results of Operations and Financial Condition — Q1 2026 Beat", date: "2026-05-08", impact: "High" },
+  { id: "fi5", ticker: "IONQ", company: "IonQ Inc.", type: "S-1", title: "Registration Statement — Tempo System Commercial Launch", date: "2026-05-07", impact: "Medium" },
+  { id: "fi6", ticker: "MARA", company: "MARA Holdings Inc.", type: "8-K", title: "Other Events — Bitcoin Treasury Update 44,893 BTC", date: "2026-05-07", impact: "Medium" },
+  { id: "fi7", ticker: "SOFI", company: "SoFi Technologies Inc.", type: "10-Q", title: "Quarterly Report — Member Growth +34% YoY", date: "2026-05-06", impact: "Medium" },
+  { id: "fi8", ticker: "RKLB", company: "Rocket Lab USA Inc.", type: "8-K", title: "Other Events — Electron Mission 60 NRO Payload Deployment", date: "2026-05-05", impact: "Low" },
+  { id: "fi9", ticker: "GME", company: "GameStop Corp.", type: "10-Q", title: "Quarterly Report — Cash Reserves $4.6B, Surprise Profit", date: "2026-05-04", impact: "High" },
+  { id: "fi10", ticker: "TLRY", company: "Tilray Brands Inc.", type: "8-K", title: "Creation of a Direct Financial Obligation — $250M Convert Notes", date: "2026-05-03", impact: "High" },
+  { id: "fi11", ticker: "NVDA", company: "NVIDIA Corporation", type: "DEF 14A", title: "Definitive Proxy Statement — 2026 Annual Meeting of Shareholders", date: "2026-05-02", impact: "Low" },
+  { id: "fi12", ticker: "TSLA", company: "Tesla Inc.", type: "13F", title: "Quarterly Holdings Report — Q1 2026 Institutional Positions", date: "2026-05-01", impact: "Low" },
+];
+
+export type JournalEntry = {
+  id: string; date: string; ticker: string; direction: "Long" | "Short";
+  entry: number; exit: number; size: number; pnl: number; pnlPct: number;
+  rMultiple: number; strategy: string; notes: string;
+};
+
+export const JOURNAL_TRADES: JournalEntry[] = [
+  { id: "j1", date: "2026-05-09", ticker: "NVDA", direction: "Long", entry: 136.40, exit: 143.20, size: 100, pnl: 680, pnlPct: 4.99, rMultiple: 2.3, strategy: "Breakout", notes: "Clean breakout above $136 resistance with 3.2x volume" },
+  { id: "j2", date: "2026-05-08", ticker: "PLTR", direction: "Long", entry: 67.50, exit: 74.20, size: 150, pnl: 1005, pnlPct: 9.93, rMultiple: 3.1, strategy: "Swing", notes: "Army contract catalyst, cup and handle completion" },
+  { id: "j3", date: "2026-05-07", ticker: "MARA", direction: "Long", entry: 18.40, exit: 17.80, size: 500, pnl: -300, pnlPct: -3.26, rMultiple: -1.0, strategy: "Momentum", notes: "BTC weakness took out stop, respected level" },
+  { id: "j4", date: "2026-05-06", ticker: "RKLB", direction: "Long", entry: 22.60, exit: 24.30, size: 200, pnl: 340, pnlPct: 7.52, rMultiple: 2.1, strategy: "Gap Play", notes: "Launch catalyst, pre-market gap held VWAP" },
+  { id: "j5", date: "2026-05-05", ticker: "SOFI", direction: "Long", entry: 14.60, exit: 15.55, size: 300, pnl: 285, pnlPct: 6.51, rMultiple: 1.8, strategy: "Breakout", notes: "Charter upgrade gap, flagged by AI signal" },
+  { id: "j6", date: "2026-05-02", ticker: "GME", direction: "Long", entry: 22.10, exit: 21.40, size: 200, pnl: -140, pnlPct: -3.17, rMultiple: -0.8, strategy: "Reversal", notes: "Failed reversal, earnings print faded quickly" },
+  { id: "j7", date: "2026-05-01", ticker: "HIMS", direction: "Long", entry: 27.30, exit: 30.10, size: 100, pnl: 280, pnlPct: 10.26, rMultiple: 2.5, strategy: "Swing", notes: "GLP-1 expansion news held ascending triangle" },
+  { id: "j8", date: "2026-04-30", ticker: "TSLA", direction: "Short", entry: 248.20, exit: 241.50, size: 50, pnl: 335, pnlPct: 2.70, rMultiple: 1.6, strategy: "Reversal", notes: "Failed breakout above 250 resistance, shorted the retest" },
+  { id: "j9", date: "2026-04-29", ticker: "IONQ", direction: "Long", entry: 32.10, exit: 36.40, size: 150, pnl: 645, pnlPct: 13.40, rMultiple: 3.4, strategy: "Breakout", notes: "Tempo system reveal, quantum sector squeeze" },
+  { id: "j10", date: "2026-04-28", ticker: "SMCI", direction: "Short", entry: 43.20, exit: 39.80, size: 100, pnl: 340, pnlPct: 7.87, rMultiple: 2.2, strategy: "Momentum", notes: "Delayed 10-K filing breakdown, news catalyst" },
+  { id: "j11", date: "2026-04-25", ticker: "NVDA", direction: "Long", entry: 132.80, exit: 135.60, size: 200, pnl: 560, pnlPct: 2.11, rMultiple: 1.4, strategy: "Dip Buy", notes: "21-EMA support bounce on rising AI spend narrative" },
+  { id: "j12", date: "2026-04-24", ticker: "AMC", direction: "Short", entry: 4.30, exit: 3.90, size: 1000, pnl: 400, pnlPct: 9.30, rMultiple: 2.0, strategy: "Reversal", notes: "ATM offering dilution, pre-market gap filled" },
+];
+
+export type PaperFill = {
+  id: string; time: string; ticker: string; side: "Buy" | "Sell"; qty: number; price: number;
+};
+
+export const PAPER_FILLS_INITIAL: PaperFill[] = [
+  { id: "pf1", time: "09:31:04", ticker: "NVDA", side: "Buy", qty: 100, price: 136.40 },
+  { id: "pf2", time: "09:44:12", ticker: "PLTR", side: "Buy", qty: 50, price: 65.20 },
+  { id: "pf3", time: "10:02:33", ticker: "RKLB", side: "Buy", qty: 250, price: 21.80 },
+  { id: "pf4", time: "10:18:55", ticker: "SOFI", side: "Buy", qty: 300, price: 14.55 },
+  { id: "pf5", time: "10:18:57", ticker: "SOFI", side: "Sell", qty: 300, price: 15.40 },
+  { id: "pf6", time: "10:51:22", ticker: "MARA", side: "Buy", qty: 200, price: 18.30 },
+  { id: "pf7", time: "11:04:10", ticker: "MARA", side: "Sell", qty: 200, price: 17.85 },
+];
+
 export const formatMoney = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 export const formatBig = (n: number) => {
   if (n >= 1e12) return (n / 1e12).toFixed(2) + "T";

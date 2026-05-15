@@ -1,9 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { SIGNALS, type Signal } from "@/lib/mock";
 import { TickerBadge, AIScoreGauge, SentimentBadge, MiniSpark, LivePrice, ChangePill } from "@/components/trade/primitives";
 import { useMarket } from "@/store/market";
 import { Star, LineChart, Sparkles, Plus } from "lucide-react";
+import { toast } from "sonner";
+import { EmptyState, SkeletonCard } from "@/components/trade/EmptyState";
+import { ErrorBoundary } from "@/components/trade/ErrorBoundary";
 
 export const Route = createFileRoute("/app/signals")({ component: SignalsPage });
 
@@ -11,6 +14,9 @@ const FILTERS = ["All Signals", "Day Trade", "Swing", "High Confidence", "New To
 
 function SignalsPage() {
   const [f, setF] = useState<(typeof FILTERS)[number]>("All Signals");
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 500); return () => clearTimeout(t); }, []);
+
   let rows = [...SIGNALS].sort((a, b) => b.aiScore - a.aiScore);
   if (f === "Day Trade") rows = rows.filter(s => s.timeframe === "Day");
   else if (f === "Swing") rows = rows.filter(s => s.timeframe === "Swing");
@@ -18,31 +24,62 @@ function SignalsPage() {
   else if (f === "New Today") rows = rows.filter(s => s.isNew);
 
   return (
-    <div className="p-4 space-y-4">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-xl font-semibold flex items-center gap-2"><Sparkles className="size-5 text-brand" /> AI Signal Feed</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Fine-tuned model · ranked by setup quality · regenerated every 60 seconds</p>
+    <ErrorBoundary>
+      <div className="p-4 space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <h1 className="text-xl font-semibold flex items-center gap-2"><Sparkles className="size-5 text-brand" /> AI Signal Feed</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">Fine-tuned model · ranked by setup quality · regenerated every 60 seconds</p>
+          </div>
+          <div className="flex items-center gap-1 p-1 rounded-md border border-border bg-surface">
+            {FILTERS.map(x => (
+              <button key={x} onClick={() => setF(x)}
+                className={`h-7 px-3 rounded text-xs transition-colors ${f === x ? "bg-brand text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                {x}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="flex items-center gap-1 p-1 rounded-md border border-border bg-surface">
-          {FILTERS.map(x => (
-            <button key={x} onClick={() => setF(x)}
-              className={`h-7 px-3 rounded text-xs transition-colors ${f === x ? "bg-brand text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-              {x}
-            </button>
-          ))}
-        </div>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {rows.map(s => <SignalCard key={s.id} s={s} />)}
+        {loading ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
+          </div>
+        ) : rows.length === 0 ? (
+          <EmptyState
+            icon={Sparkles}
+            title="No signals match this filter"
+            description="Try switching to a different filter tab or check back when new signals are generated."
+            action="View All Signals"
+            onAction={() => setF("All Signals")}
+          />
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {rows.map(s => <SignalCard key={s.id} s={s} />)}
+          </div>
+        )}
       </div>
-    </div>
+    </ErrorBoundary>
   );
 }
 
 function SignalCard({ s }: { s: Signal }) {
   const q = useMarket(st => st.quotes[s.ticker]);
+  const addToWatchlist = useMarket(st => st.addToWatchlist);
+  const setActiveChartTicker = useMarket(st => st.setActiveChartTicker);
+  const navigate = useNavigate();
+
+  function handleViewChart() {
+    setActiveChartTicker(s.ticker);
+    navigate({ to: "/app/charts" });
+  }
+
+  function handleAddWatchlist() {
+    const added = addToWatchlist(s.ticker);
+    if (added) toast.success(`${s.ticker} added to watchlist`, { description: `${s.setup} · AI Score ${s.aiScore}` });
+    else toast.info(`${s.ticker} is already in your watchlist`);
+  }
+
   return (
     <article className="rounded-lg border border-border bg-surface hover:border-brand/40 transition-colors overflow-hidden group">
       <header className="px-4 py-3 border-b border-border flex items-center gap-3">
@@ -86,17 +123,17 @@ function SignalCard({ s }: { s: Signal }) {
               <SentimentBadge score={s.sentiment} />
             </div>
             <div className="mt-1 h-1.5 rounded-full bg-muted overflow-hidden">
-              <div className={`h-full ${s.sentiment >= 0 ? "bg-bull" : "bg-bear"}`} style={{ width: `${Math.min(100, Math.abs(s.sentiment))}%` }} />
+              <div className={`h-full transition-all ${s.sentiment >= 0 ? "bg-bull" : "bg-bear"}`} style={{ width: `${Math.min(100, Math.abs(s.sentiment))}%` }} />
             </div>
           </div>
         </div>
       </div>
 
       <footer className="px-4 py-3 border-t border-border flex gap-2">
-        <button className="flex-1 h-8 rounded-md bg-brand hover:bg-brand-glow text-primary-foreground text-xs font-medium flex items-center justify-center gap-1.5">
+        <button onClick={handleViewChart} className="flex-1 h-8 rounded-md bg-brand hover:bg-brand-glow text-primary-foreground text-xs font-medium flex items-center justify-center gap-1.5 transition-colors">
           <LineChart className="size-3.5" /> View Chart
         </button>
-        <button className="flex-1 h-8 rounded-md border border-border hover:bg-accent text-xs flex items-center justify-center gap-1.5">
+        <button onClick={handleAddWatchlist} className="flex-1 h-8 rounded-md border border-border hover:bg-accent text-xs flex items-center justify-center gap-1.5 transition-colors">
           <Plus className="size-3.5" /> Add to Watchlist
         </button>
         <button className="size-8 rounded-md border border-border hover:bg-accent flex items-center justify-center text-muted-foreground"><Star className="size-3.5" /></button>
