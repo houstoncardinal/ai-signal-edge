@@ -79,7 +79,7 @@ export function ScoreBadge({ score }: { score: number }) {
 
 export function MiniSpark({ ticker, color = "var(--brand)" }: { ticker: string; color?: string }) {
   // deterministic from ticker
-  const points = useRef<number[]>();
+  const points = useRef<number[] | null>(null);
   if (!points.current) {
     let h = 0; for (let i = 0; i < ticker.length; i++) h = (h * 31 + ticker.charCodeAt(i)) >>> 0;
     const arr: number[] = []; let v = 50;

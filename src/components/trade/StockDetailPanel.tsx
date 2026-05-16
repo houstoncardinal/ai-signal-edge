@@ -37,7 +37,7 @@ export function StockDetailPanel({ ticker, onClose }: { ticker: string; onClose:
   const [alertOpen, setAlertOpen] = useState(false);
   const q = useMarket(s => s.quotes[ticker]);
   const addToWatchlist = useMarket(s => s.addToWatchlist);
-  const chartRef = useRef<IChartApi>();
+  const chartRef = useRef<IChartApi | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const tickerNews = NEWS.filter(n => n.ticker === ticker).slice(0, 4);
 
@@ -56,7 +56,7 @@ export function StockDetailPanel({ ticker, onClose }: { ticker: string; onClose:
     const series = chart.addSeries(CandlestickSeries, {
       upColor: "#00D4AA", downColor: "#EF4444", borderUpColor: "#00D4AA", borderDownColor: "#EF4444", wickUpColor: "#00D4AA", wickDownColor: "#EF4444",
     });
-    series.setData(genMiniCandles(ticker, 60, q.prevClose));
+    series.setData(genMiniCandles(ticker, 60, q.prevClose) as any);
     const resize = () => { if (el) chart.applyOptions({ width: el.clientWidth, height: el.clientHeight }); };
     resize();
     window.addEventListener("resize", resize);
