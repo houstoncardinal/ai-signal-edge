@@ -1,14 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { useMarket } from "@/store/market";
-import { User, Bell, Palette, CreditCard, Key, Copy, Trash2, Plus, ExternalLink, CheckCircle2, Settings } from "lucide-react";
+import { User, Bell, Palette, CreditCard, Key, Copy, Trash2, Plus, ExternalLink, CheckCircle2, Settings, Briefcase, Loader2, ShieldCheck, AlertTriangle, ExternalLink as LinkIcon } from "lucide-react";
 import { toast } from "sonner";
 import { ErrorBoundary } from "@/components/trade/ErrorBoundary";
+import {
+  getBrokerStatus,
+  saveBrokerCredentials,
+  testBrokerConnection,
+  clearBrokerCredentials,
+} from "@/lib/alpaca.functions";
 
 export const Route = createFileRoute("/app/settings")({ component: SettingsPage });
 
-type Tab = "Account" | "Notifications" | "Appearance" | "Subscription" | "API Keys";
+type Tab = "Brokerage" | "Account" | "Notifications" | "Appearance" | "Subscription" | "API Keys";
 const TABS: { key: Tab; icon: any }[] = [
+  { key: "Brokerage", icon: Briefcase },
   { key: "Account", icon: User },
   { key: "Notifications", icon: Bell },
   { key: "Appearance", icon: Palette },
@@ -36,7 +44,7 @@ const MOCK_API_KEYS = [
 ];
 
 function SettingsPage() {
-  const [tab, setTab] = useState<Tab>("Account");
+  const [tab, setTab] = useState<Tab>("Brokerage");
   const settings = useMarket(s => s.settings);
   const updateSettings = useMarket(s => s.updateSettings);
 
@@ -59,6 +67,7 @@ function SettingsPage() {
 
         {/* Content */}
         <div className="flex-1 overflow-auto p-6 max-w-2xl">
+          {tab === "Brokerage" && <BrokerageTab />}
           {tab === "Account" && <AccountTab settings={settings} onSave={save} updateSettings={updateSettings} />}
           {tab === "Notifications" && <NotificationsTab settings={settings} updateSettings={updateSettings} onSave={save} />}
           {tab === "Appearance" && <AppearanceTab settings={settings} updateSettings={updateSettings} onSave={save} />}
