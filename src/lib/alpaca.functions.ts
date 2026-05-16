@@ -106,21 +106,21 @@ export const clearBrokerCredentials = createServerFn({ method: "POST" }).handler
 
 async function testKeysAgainstAlpaca(keyId: string, secret: string, mode: "paper" | "live") {
   try {
-    const account = (await alpacaFetch(
+    const a = (await alpacaFetch(
       { api_key_id: keyId, api_secret_key: secret, mode },
       "/v2/account",
-    )) as Record<string, unknown>;
+    )) as Record<string, any>;
     return {
       ok: true as const,
       account: {
-        id: account.id,
-        accountNumber: account.account_number,
-        status: account.status,
-        cash: account.cash,
-        equity: account.equity,
-        buyingPower: account.buying_power,
-        currency: account.currency,
-        patternDayTrader: account.pattern_day_trader,
+        id: String(a.id ?? ""),
+        accountNumber: String(a.account_number ?? ""),
+        status: String(a.status ?? ""),
+        cash: Number(a.cash ?? 0),
+        equity: Number(a.equity ?? 0),
+        buyingPower: Number(a.buying_power ?? 0),
+        currency: String(a.currency ?? "USD"),
+        patternDayTrader: Boolean(a.pattern_day_trader),
       },
     };
   } catch (e) {
