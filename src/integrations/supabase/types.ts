@@ -14,7 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      broker_credentials: {
+        Row: {
+          api_key_id: string
+          api_secret_key: string
+          created_at: string
+          data_feed: string
+          id: string
+          label: string | null
+          mode: string
+          provider: string
+          updated_at: string
+        }
+        Insert: {
+          api_key_id: string
+          api_secret_key: string
+          created_at?: string
+          data_feed?: string
+          id?: string
+          label?: string | null
+          mode?: string
+          provider?: string
+          updated_at?: string
+        }
+        Update: {
+          api_key_id?: string
+          api_secret_key?: string
+          created_at?: string
+          data_feed?: string
+          id?: string
+          label?: string | null
+          mode?: string
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
