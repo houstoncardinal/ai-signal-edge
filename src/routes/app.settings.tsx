@@ -1,14 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { useMarket } from "@/store/market";
-import { User, Bell, Palette, CreditCard, Key, Copy, Trash2, Plus, ExternalLink, CheckCircle2, Settings } from "lucide-react";
+import { User, Bell, Palette, CreditCard, Key, Copy, Trash2, Plus, ExternalLink, CheckCircle2, Settings, Briefcase, Loader2, ShieldCheck, AlertTriangle, ExternalLink as LinkIcon } from "lucide-react";
 import { toast } from "sonner";
 import { ErrorBoundary } from "@/components/trade/ErrorBoundary";
+import {
+  getBrokerStatus,
+  saveBrokerCredentials,
+  testBrokerConnection,
+  clearBrokerCredentials,
+} from "@/lib/alpaca.functions";
 
 export const Route = createFileRoute("/app/settings")({ component: SettingsPage });
 
-type Tab = "Account" | "Notifications" | "Appearance" | "Subscription" | "API Keys";
+type Tab = "Brokerage" | "Account" | "Notifications" | "Appearance" | "Subscription" | "API Keys";
 const TABS: { key: Tab; icon: any }[] = [
+  { key: "Brokerage", icon: Briefcase },
   { key: "Account", icon: User },
   { key: "Notifications", icon: Bell },
   { key: "Appearance", icon: Palette },
@@ -36,7 +44,7 @@ const MOCK_API_KEYS = [
 ];
 
 function SettingsPage() {
-  const [tab, setTab] = useState<Tab>("Account");
+  const [tab, setTab] = useState<Tab>("Brokerage");
   const settings = useMarket(s => s.settings);
   const updateSettings = useMarket(s => s.updateSettings);
 
@@ -59,6 +67,7 @@ function SettingsPage() {
 
         {/* Content */}
         <div className="flex-1 overflow-auto p-6 max-w-2xl">
+          {tab === "Brokerage" && <BrokerageTab />}
           {tab === "Account" && <AccountTab settings={settings} onSave={save} updateSettings={updateSettings} />}
           {tab === "Notifications" && <NotificationsTab settings={settings} updateSettings={updateSettings} onSave={save} />}
           {tab === "Appearance" && <AppearanceTab settings={settings} updateSettings={updateSettings} onSave={save} />}
@@ -388,6 +397,171 @@ function ApiKeysTab() {
       <div className="mt-4 p-3 rounded-lg bg-warn/10 border border-warn/30">
         <p className="text-xs text-warn font-medium">Security Notice</p>
         <p className="text-xs text-muted-foreground mt-0.5">Never share your API keys publicly. Keys grant full access to your account. Rotate keys every 90 days.</p>
+      </div>
+    </div>
+  );
+}
+
+function BrokerageTab() {
+  const fetchStatus = useServerFn(getBrokerStatus);
+  const saveCreds = useServerFn(saveBrokerCredentials);
+  const testConn = useServerFn(testBrokerConnection);
+  const clearCreds = useServerFn(clearBrokerCredentials);
+
+  const [status, setStatus] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  const [keyId, setKeyId] = useState("");
+  const [secret, setSecret] = useState("");
+  const [mode, setMode] = useState<"paper" | "live">("paper");
+  const [showSecret, setShowSecret] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [testing, setTesting] = useState(false);
+
+  async function refresh() {
+    setLoading(true);
+    try { setStatus(await fetchStatus()); }
+    catch (e: any) { toast.error(e.message ?? "Failed to load broker status"); }
+    finally { setLoading(false); }
+  }
+
+  useEffect(() => { refresh(); }, []);
+
+  async function handleSave() {
+    if (!keyId.trim() || !secret.trim()) { toast.error("Enter both Key ID and Secret"); return; }
+    setSaving(true);
+    try {
+      const res = await saveCreds({ data: { apiKeyId: keyId.trim(), apiSecretKey: secret.trim(), mode, label: null } });
+      toast.success(`Connected · ${mode === "paper" ? "Paper" : "Live"} · Equity $${Number(res.account.equity).toLocaleString()}`);
+      setKeyId(""); setSecret("");
+      await refresh();
+    } catch (e: any) {
+      toast.error(e.message ?? "Could not connect to Alpaca");
+    } finally { setSaving(false); }
+  }
+
+  async function handleTest() {
+    setTesting(true);
+    try {
+      const res: any = await testConn();
+      if (res.ok) toast.success(`Connection OK · Equity $${Number(res.account.equity).toLocaleString()} · Status ${res.account.status}`);
+      else toast.error(res.error ?? "Connection failed");
+    } catch (e: any) { toast.error(e.message ?? "Test failed"); }
+    finally { setTesting(false); }
+  }
+
+  async function handleDisconnect() {
+    if (!confirm("Disconnect Alpaca? You can reconnect any time by pasting your keys again.")) return;
+    try { await clearCreds(); toast.success("Alpaca disconnected"); await refresh(); }
+    catch (e: any) { toast.error(e.message ?? "Failed to disconnect"); }
+  }
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <SectionTitle>Brokerage Connection</SectionTitle>
+        <p className="text-xs text-muted-foreground -mt-3 mb-4">
+          Paste your Alpaca API key and secret. Choose <strong className="text-foreground">Paper</strong> for risk-free simulation or <strong className="text-foreground">Live</strong> for real money.
+        </p>
+
+        {/* Status card */}
+        <div className={`rounded-xl border p-4 mb-6 ${status?.connected ? "border-bull/40 bg-bull/5" : "border-border bg-surface"}`}>
+          {loading ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" /> Checking connection…</div>
+          ) : status?.connected ? (
+            <div className="flex items-center justify-between">
+              <div className="flex items-start gap-3">
+                <div className="size-10 rounded-lg bg-bull/15 flex items-center justify-center">
+                  <ShieldCheck className="size-5 text-bull" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold">Alpaca connected</span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium border ${status.mode === "live" ? "bg-bear/15 text-bear border-bear/30" : "bg-brand/15 text-brand border-brand/30"}`}>
+                      {status.mode === "live" ? "LIVE" : "PAPER"}
+                    </span>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5 font-mono">Key {status.keyMasked}</div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5">Updated {new Date(status.updatedAt).toLocaleString()}</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button onClick={handleTest} disabled={testing} className="h-8 px-3 rounded-md border border-border hover:bg-accent text-xs flex items-center gap-1.5 disabled:opacity-50">
+                  {testing ? <Loader2 className="size-3.5 animate-spin" /> : <CheckCircle2 className="size-3.5" />} Test
+                </button>
+                <button onClick={handleDisconnect} className="h-8 px-3 rounded-md border border-bear/40 text-bear hover:bg-bear/10 text-xs flex items-center gap-1.5">
+                  <Trash2 className="size-3.5" /> Disconnect
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <div className="size-10 rounded-lg bg-muted flex items-center justify-center">
+                <Briefcase className="size-5 text-muted-foreground" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold">Not connected</div>
+                <div className="text-xs text-muted-foreground">Add your Alpaca keys below to start trading.</div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Mode toggle */}
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <button onClick={() => setMode("paper")}
+            className={`text-left rounded-lg border-2 p-3 transition-colors ${mode === "paper" ? "border-brand bg-brand/5" : "border-border hover:border-brand/40"}`}>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold">Paper</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-brand/15 text-brand border border-brand/30">Recommended</span>
+            </div>
+            <div className="text-[11px] text-muted-foreground mt-1">Simulated money. Perfect for testing strategies.</div>
+          </button>
+          <button onClick={() => setMode("live")}
+            className={`text-left rounded-lg border-2 p-3 transition-colors ${mode === "live" ? "border-bear bg-bear/5" : "border-border hover:border-bear/40"}`}>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold">Live</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-bear/15 text-bear border border-bear/30">Real money</span>
+            </div>
+            <div className="text-[11px] text-muted-foreground mt-1">Routes orders to your funded Alpaca account.</div>
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs text-muted-foreground uppercase tracking-wider block mb-1">API Key ID</label>
+            <input value={keyId} onChange={e => setKeyId(e.target.value)} className={`${INPUT} font-mono`} placeholder="PKxxxxxxxxxxxxxxxxxx" autoComplete="off" spellCheck={false} />
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground uppercase tracking-wider mb-1 flex items-center justify-between">
+              <span>Secret Key</span>
+              <button type="button" onClick={() => setShowSecret(s => !s)} className="text-[10px] normal-case tracking-normal text-brand hover:underline">
+                {showSecret ? "Hide" : "Show"}
+              </button>
+            </label>
+            <input value={secret} onChange={e => setSecret(e.target.value)} type={showSecret ? "text" : "password"} className={`${INPUT} font-mono`} placeholder="••••••••••••••••••••••••••••••••" autoComplete="off" spellCheck={false} />
+          </div>
+
+          <div className="flex items-center gap-2 pt-1">
+            <button onClick={handleSave} disabled={saving || !keyId || !secret}
+              className="h-9 px-4 rounded-md bg-brand hover:bg-brand-glow text-primary-foreground text-sm font-medium flex items-center gap-2 disabled:opacity-50">
+              {saving ? <Loader2 className="size-4 animate-spin" /> : <ShieldCheck className="size-4" />}
+              {saving ? "Verifying with Alpaca…" : status?.connected ? "Replace credentials" : "Connect Alpaca"}
+            </button>
+            <a href={mode === "live" ? "https://app.alpaca.markets/paper/dashboard/overview" : "https://app.alpaca.markets/paper/dashboard/overview"}
+               target="_blank" rel="noreferrer"
+               className="h-9 px-3 rounded-md border border-border hover:bg-accent text-xs flex items-center gap-1.5 text-muted-foreground">
+              Get keys <LinkIcon className="size-3" />
+            </a>
+          </div>
+        </div>
+
+        <div className="mt-6 p-3 rounded-lg bg-warn/10 border border-warn/30 flex gap-3">
+          <AlertTriangle className="size-4 text-warn shrink-0 mt-0.5" />
+          <div className="text-[11px] text-muted-foreground leading-relaxed">
+            Keys are stored encrypted on the backend and only sent to Alpaca's servers. They are <strong className="text-foreground">never</strong> exposed to the browser after saving. Use Paper mode unless you're ready for real fills.
+          </div>
+        </div>
       </div>
     </div>
   );

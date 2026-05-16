@@ -40,9 +40,9 @@ function ChartView() {
   const quotes = useMarket(s => s.quotes);
   const q = quotes[ticker] ?? quotes["NVDA"];
   const containerRef = useRef<HTMLDivElement>(null);
-  const chartRef = useRef<IChartApi>();
-  const candleRef = useRef<ISeriesApi<"Candlestick">>();
-  const volRef = useRef<ISeriesApi<"Histogram">>();
+  const chartRef = useRef<IChartApi | null>(null);
+  const candleRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
+  const volRef = useRef<ISeriesApi<"Histogram"> | null>(null);
 
   useEffect(() => { setTicker(activeChartTicker); }, [activeChartTicker]);
 

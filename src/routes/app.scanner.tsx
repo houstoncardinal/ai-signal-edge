@@ -13,7 +13,7 @@ const PRESETS = ["AI Top Picks", "Top Gainers", "High Relative Volume", "Gap Ups
 type SortKey = "ticker" | "price" | "changePct" | "volume" | "relVolume" | "float" | "marketCap" | "rsi" | "aiScore";
 type SortDir = "asc" | "desc";
 
-const ALL_COLUMNS = [
+const ALL_COLUMNS: { key: string; label: string; required?: boolean }[] = [
   { key: "ticker", label: "Ticker", required: true },
   { key: "company", label: "Company", required: true },
   { key: "price", label: "Price" },
@@ -25,7 +25,7 @@ const ALL_COLUMNS = [
   { key: "rsi", label: "RSI" },
   { key: "pattern", label: "Pattern" },
   { key: "aiScore", label: "AI Score" },
-] as const;
+];
 
 function Scanner() {
   const quotes = useMarket((s) => s.quotes);
